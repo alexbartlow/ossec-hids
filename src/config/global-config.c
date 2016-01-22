@@ -120,6 +120,11 @@ int Read_Global(XML_NODE node, void *configp, void *mailp)
     const char *xml_heloserver = "helo_server";
     const char *xml_mailmaxperhour = "email_maxperhour";
 
+    const char *xml_auth_smtp = "auth_smtp";
+    const char *xml_smtp_user = "smtp_user";
+    const char *xml_smtp_pass = "smtp_password";
+    const char *xml_secure_smtp = "secure_smtp";
+
 #ifdef LIBGEOIP_ENABLED
     const char *xml_geoip_db_path = "geoip_db_path";
     const char *xml_geoip6_db_path = "geoip6_db_path";
@@ -195,6 +200,42 @@ int Read_Global(XML_NODE node, void *configp, void *mailp)
             } else {
                 merror(XML_VALUEERR, __local_name, node[i]->element, node[i]->content);
                 return (OS_INVALID);
+            }
+        }
+        /* SMTP Authentication */
+        else if(strcmp(node[i]->element, xml_auth_smtp) == 0)
+        {
+            if (strcmp(node[i]->content, "yes") == 0)
+            {
+                if (Config) Config->authsmtp = 1;
+                if (Mail) Mail->authsmtp = 1;
+            }
+            else if(strcmp(node[i]->content, "no") == 0)
+            {  
+                if (Config) Config->authsmtp = 0;
+                if (Mail) Mail->authsmtp = 0;
+            }
+            else
+            {
+                return(OS_INVALID);
+            }
+        }
+        /* Secure SMTP (SSL) */
+        else if(strcmp(node[i]->element, xml_secure_smtp) == 0)
+        {
+            if (strcmp(node[i]->content, "yes") == 0)
+            {
+                if (Config) Config->securesmtp = 1;
+                if (Mail) Mail->securesmtp = 1;
+            }
+            else if(strcmp(node[i]->content, "no") == 0)
+            {  
+                if (Config) Config->securesmtp = 0;
+                if (Mail) Mail->securesmtp = 0;
+            }
+            else
+            {
+                return(OS_INVALID);
             }
         }
         /* Picviz support */
@@ -446,6 +487,24 @@ int Read_Global(XML_NODE node, void *configp, void *mailp)
                 }
                 os_strdup(node[i]->content, Mail->idsname);
             }
+       } else if(strcmp(node[i]->element, xml_smtp_user) == 0) {
+          if(Mail && (Mail->authsmtp))
+          {
+              if(Mail->smtp_user)
+              {
+                  free(Mail->smtp_user);
+              }
+              os_strdup(node[i]->content, Mail->smtp_user);
+          }
+        } else if(strcmp(node[i]->element, xml_smtp_pass) == 0) {
+          if(Mail && (Mail->authsmtp))
+          {
+            if(Mail->smtp_pass)
+            {
+                free(Mail->smtp_pass);
+            }
+            os_strdup(node[i]->content, Mail->smtp_pass);
+          }
         } else if (strcmp(node[i]->element, xml_smtpserver) == 0) {
 #ifndef WIN32
             if (Mail && (Mail->mn)) {
