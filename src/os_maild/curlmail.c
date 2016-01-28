@@ -12,7 +12,7 @@ struct upload_status {
   int lines_read;
 };
 
-static char *payload_text[7];
+static char *payload_text[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp) {
   struct upload_status *upload_ctx = (struct upload_status *)userp;
@@ -45,6 +45,13 @@ int OS_Sendsms(MailConfig *mail, struct tm *p, MailMsg *msg) {
   gethostname(hostname, 1024);
 
   char *messageId = NULL;
+  int i = 0;
+
+  for(i = 0; i<5; i++) {
+    if(!payload_text[i]) {
+      payload_text[i] = (char*)malloc(128);
+    }
+  }
 
   strftime(payload_text[0], 127, "Date: %a, %d %b %Y %T %z\r\n", p);
   sprintf(payload_text[1], "To: %s \r\n", mail->to[0]);
@@ -52,7 +59,9 @@ int OS_Sendsms(MailConfig *mail, struct tm *p, MailMsg *msg) {
   strftime(messageId, 127, "%a%d%b%Y%T%z", p);
   sprintf(payload_text[3], "Message-ID: <%s@%s> \r\n", messageId, hostname);
   sprintf(payload_text[4], "Subject: %s \r\n\r\n", msg->subject);
-  sprintf(payload_text[5], "%s", msg->body);
+
+  payload_text[5] = msg->body;
+
   payload_text[6] = NULL;
 
   upload_ctx.lines_read = 0;

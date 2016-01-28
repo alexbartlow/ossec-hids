@@ -40,11 +40,14 @@ DEFINES+=-DREMUSER=\"${OSSEC_USER_REM}\"
 DEFINES+=-DGROUPGLOBAL=\"${OSSEC_GROUP}\"
 DEFINES+=-DMAILUSER=\"${OSSEC_USER_MAIL}\"
 DEFINES+=-D${uname_S}
-ifeq (${SENDMAIL_CURL},yes)
-	DEFINES +=-DSENDMAIL_CURL=\"1\"
-endif
+
 
 OSSEC_LDFLAGS=${LDFLAGS} -lm
+
+ifeq (${SENDMAIL_CURL},yes)
+	DEFINES +=-DSENDMAIL_CURL=\"1\"
+	OSSEC_LDFLAGS+=-lcurl
+endif
 
 ifneq (${TARGET},winagent)
 ifeq (${uname_S},Linux)
