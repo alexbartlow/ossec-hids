@@ -18,6 +18,9 @@
 ### Looking up for the execution directory
 cd `dirname $0`
 
+# Export so make knows to compile curl support in
+export SENDMAIL_CURL
+
 
 ### Looking for echo -n
 ECHO="echo -n"
