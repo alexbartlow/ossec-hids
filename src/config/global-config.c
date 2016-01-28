@@ -503,11 +503,15 @@ int Read_Global(XML_NODE node, void *configp, void *mailp)
                 if (node[i]->content[0] == '/') {
                     os_strdup(node[i]->content, Mail->smtpserver);
                 } else {
+#ifdef SENDMAIL_CURL
+                    os_strdup(node[i]->content, Mail->smtpserver);
+#else
                     Mail->smtpserver = OS_GetHost(node[i]->content, 5);
                     if (!Mail->smtpserver) {
                         merror(INVALID_SMTP, __local_name, node[i]->content);
                         return (OS_INVALID);
                     }
+#endif
                 }
                 free(Mail->smtpserver);
                 os_strdup(node[i]->content, Mail->smtpserver);
