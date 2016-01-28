@@ -308,16 +308,20 @@ UseAuthSMTP()
     esac
 
     if [ "X${AUTHSMTP}" = "Xyes" ]; then
+      if [ "X${AUTHSMTP_USER}" = "X" ]; then
         echo ""
         $ECHO "  ${userauthsmtp}: "
         read AUTHSMTP_USER
+      fi
 
+      if [ "X${AUTHSMTP_PASS}" = "X" ]; then
         echo ""
         $ECHO "  ${passauthsmtp}: "
         stty -echo # turn off terminal echo to prevent peeping!
         read AUTHSMTP_PASS
         stty echo # turn on
         echo ""
+      fi
     fi
 
     # Adding to the config file
