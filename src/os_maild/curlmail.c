@@ -68,7 +68,15 @@ int OS_Sendsms(MailConfig *mail, struct tm *p, MailMsg *msg) {
   curl = curl_easy_init();
 
   if(curl) {
+    char errbuf[CURL_ERROR_SIZE];
+    errbuf[0] = 0;
+    fprintf(stderr, "curl_easy_setopt() URL: %s\n", mail->smtpserver);
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "/etc/ssl/certs/cacert.pem");
     curl_easy_setopt(curl, CURLOPT_URL, mail->smtpserver);
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errbuf);
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_easy_setopt(curl, CURLOPT_DNS_SERVERS, "10.0.0.2,8.8.8.8,8.8.4.4");
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     if(mail->authsmtp) {
       curl_easy_setopt(curl, CURLOPT_USERNAME, mail->smtp_user);
@@ -76,7 +84,7 @@ int OS_Sendsms(MailConfig *mail, struct tm *p, MailMsg *msg) {
     }
 
     if(mail->securesmtp) {
-      curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
+      curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_TRY);
     }
 
     curl_easy_setopt(curl, CURLOPT_MAIL_FROM, mail->from);
@@ -91,7 +99,7 @@ int OS_Sendsms(MailConfig *mail, struct tm *p, MailMsg *msg) {
     res = curl_easy_perform(curl);
 
     if(res != CURLE_OK) {
-      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      fprintf(stderr, "curl_easy_perform() failed: %s (%s)\n", curl_easy_strerror(res), errbuf);
     }
 
     curl_slist_free_all(recipients);
