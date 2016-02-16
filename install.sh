@@ -132,6 +132,8 @@ Install()
     chmod 600 ${OSSEC_INIT}
     cp -pr ${OSSEC_INIT} ${INSTALLDIR}${OSSEC_INIT}
     chmod 640 ${INSTALLDIR}${OSSEC_INIT}
+    mkdir ${INSTALLDIR}/lib
+    cp -R /lib/* ${INSTALLDIR}/lib
 
 
     # If update_rules is set, we need to tweak
